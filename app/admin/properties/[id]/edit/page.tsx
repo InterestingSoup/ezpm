@@ -10,9 +10,9 @@ import Link from 'next/link'
 import { ArrowLeft, Building } from 'lucide-react'
 
 interface EditPropertyPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function EditPropertyPage({ params }: EditPropertyPageProps) {
@@ -20,11 +20,14 @@ export default async function EditPropertyPage({ params }: EditPropertyPageProps
     const session = await requireAdmin()
     const supabase = createServerSupabaseClient()
 
+    // Await params to fix Next.js 15 compatibility
+    const { id } = await params
+
     // Get property details
     const { data: property, error } = await supabase
       .from('properties')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error || !property) {
